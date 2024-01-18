@@ -1,0 +1,1 @@
+C:\Users\Joshua\source\repos\StemNetBluetoothClientApp\StemNetBluetoothClientApp\StemNetBluetoothClientApp.csproj;x64
