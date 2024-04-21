@@ -1,12 +1,14 @@
-﻿using StemNetBluetoothClientApp.BLE;
+﻿using StemNetBluetoothClientApp.Model.BLE;
+using StemNetBluetoothClientApp.ViewModel;
 
 namespace StemNetBluetoothClientApp;
 
 public partial class MainPage : ContentPage
 {
-	public MainPage()
+	public MainPage(MainViewModel mainViewModel)
 	{
 		InitializeComponent();
+        BindingContext = mainViewModel;
 	}
 
 	private void OnCounterClicked(object sender, EventArgs e)
@@ -18,7 +20,7 @@ public partial class MainPage : ContentPage
 	private async Task ConnectAndSetOutput()
 	{
         string output = await BLEReader.Read();
-        MainThread.BeginInvokeOnMainThread(() =>
+        this.Dispatcher.Dispatch(() =>
         {
             OutputLbl.Text = output;
             SemanticScreenReader.Announce(OutputLbl.Text);

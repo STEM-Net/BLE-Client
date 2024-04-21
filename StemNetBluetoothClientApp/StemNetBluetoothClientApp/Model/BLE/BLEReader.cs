@@ -5,7 +5,7 @@ using System.Text;
 using Plugin.BLE;
 using Plugin.BLE.Abstractions.Contracts;
 
-namespace StemNetBluetoothClientApp.BLE
+namespace StemNetBluetoothClientApp.Model.BLE
 {
     class BLEReader
     {
@@ -15,6 +15,7 @@ namespace StemNetBluetoothClientApp.BLE
 
             // Replace with your characteristic UUID
             Guid characteristicUuid = new Guid("ca73b3ba-39f6-4ab3-91ae-186dc9577d99");
+            Guid serviceUuid = new Guid("91bad492-b950-4226-aa2b-4ede9fa42f59");
             try
             {
                 var adapter = CrossBluetoothLE.Current.Adapter;
@@ -31,23 +32,29 @@ namespace StemNetBluetoothClientApp.BLE
                 if (device != null)
                 {
                     await adapter.ConnectToDeviceAsync(device);
-                    var service = await device.GetServiceAsync(characteristicUuid);
+                    var service = await device.GetServiceAsync(serviceUuid);
+                    if (service == null)
+                    {
+                        sb.AppendLine("Service '91bad492-b950-4226-aa2b-4ede9fa42f59' not found.");
+                        return sb.ToString();
+                    }
                     var characteristic = await service.GetCharacteristicAsync(characteristicUuid);
-                    await characteristic.StartUpdatesAsync();
                     characteristic.ValueUpdated += (sender, args) =>
                     {
                         byte[] data = args.Characteristic.Value;
-                        sb.Append($"Received data: {BitConverter.ToString(data)}");
+                        sb.AppendLine($"Received data: {BitConverter.ToString(data)}");
                     };
+                    await characteristic.StartUpdatesAsync();
+                    await Task.Delay(10000);
                 }
                 else
                 {
-                    sb.Append("Device 'BME280_ESP32' not found.");
+                    sb.AppendLine("Device 'BME280_ESP32' not found.");
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Error: {ex.Message}");
+                sb.AppendLine($"Error: {ex.Message} {ex.StackTrace}");
             }
 
             return sb.ToString();
